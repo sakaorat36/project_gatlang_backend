@@ -1,0 +1,15 @@
+# REGISTER
+POST    /auth/register
+BODY    username, password, firstName, lastName, email, mobile
+RESPONSE
+201     { accessToken: String, user: {id: Number, firstName: String, lastName: String}}
+400     { message: String }
+500     { message: String }
+
+# Login
+POST    /auth/Login
+BODY    username, password
+RESPONSE
+200     { accessToken: String, user: {id: Number, firstName: String, lastName: String}}
+400     { message: String }
+500     { message: String }
