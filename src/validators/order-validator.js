@@ -14,8 +14,4 @@ const updateOrderSchema = Joi.object({
   orderDetail: Joi.array(),
 });
 
-// const deleteOrderSchema = Joi.object({
-//   orderId: Joi.number().integer().positive().required(),
-// });
-
 module.exports = { createOrderSchema, updateOrderSchema };

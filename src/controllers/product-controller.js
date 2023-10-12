@@ -70,3 +70,17 @@ exports.deleteProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllProducts = async (req, res, next) => {
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        name: true,
+        price: true,
+      },
+    });
+    res.status(200).json({ products });
+  } catch (error) {
+    next(error);
+  }
+};

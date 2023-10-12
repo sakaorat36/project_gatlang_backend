@@ -45,12 +45,6 @@ exports.updateOrder = async (req, res, next) => {
       return next(error);
     }
 
-    // const orderDetails = await prisma.orderDetail.findMany({
-    //   where: {
-    //     orderId: value.orderId,
-    //   },
-    // });
-
     const order = await prisma.order.findFirst({
       where: {
         id: value.orderId,
@@ -90,29 +84,6 @@ exports.updateOrder = async (req, res, next) => {
       },
     });
 
-    // for (let el of orderDetails) {
-    //   await prisma.orderDetail.update({
-    //     where: {
-    //       id: el.id,
-    //     },
-    //     data: {
-    //       amount: el.amount,
-    //       price: el.price,
-    //     },
-    //   });
-    // }
-
-    // const updateOrder = await prisma.order.update({
-    //   data: {
-    //     totalPrice: receivingOrder.totalPrice,
-    //     orderDetail: {
-
-    //     },
-    //   },
-    //   where: {
-    //     id: receivingOrder.orderId,
-    //   },
-    // });
     res.status(201).json({ newOrder });
   } catch (error) {
     next(error);
