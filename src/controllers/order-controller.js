@@ -1,8 +1,8 @@
 const prisma = require("../models/prisma");
-const createError = require("../utils/create-error");
+// const createError = require("../utils/create-error");
 const {
   createOrderSchema,
-  updateOrderSchema,
+  updateOrderStatusSchema,
 } = require("../validators/order-validator");
 
 exports.createOrder = async (req, res, next) => {
@@ -14,6 +14,7 @@ exports.createOrder = async (req, res, next) => {
       return next(error);
     }
 
+    /* Called when press Btn-Submit */
     const createOrderProduct = await prisma.order.create({
       data: {
         userId: req.user.id,
@@ -36,9 +37,63 @@ exports.createOrder = async (req, res, next) => {
   }
 };
 
-exports.updateOrder = async (req, res, next) => {
+// exports.updateOrder = async (req, res, next) => {
+//   try {
+//     const { value, error } = updateOrderSchema.validate(req.body);
+
+//     if (error) {
+//       error.statusCode = 400;
+//       return next(error);
+//     }
+
+//     const order = await prisma.order.findFirst({
+//       where: {
+//         id: value.orderId,
+//       },
+//     });
+
+//     if (!order) {
+//       const error = new Error("order not found");
+//       error.statusCode = 400;
+
+//       return next(error);
+//     }
+
+//     await prisma.orderDetail.deleteMany({
+//       where: {
+//         orderId: value.orderId,
+//       },
+//     });
+
+//     await prisma.order.delete({
+//       where: {
+//         id: value.orderId,
+//       },
+//     });
+
+//     const newOrder = await prisma.order.create({
+//       data: {
+//         userId: req.user.id,
+
+//         totalPrice: value.totalPrice,
+//         orderDetail: {
+//           create: [...value.orderDetail],
+//         },
+//       },
+//       include: {
+//         orderDetail: true,
+//       },
+//     });
+
+//     res.status(201).json({ newOrder });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const { value, error } = updateOrderSchema.validate(req.body);
+    const { value, error } = updateOrderStatusSchema.validate(req.body);
 
     if (error) {
       error.statusCode = 400;
@@ -58,33 +113,16 @@ exports.updateOrder = async (req, res, next) => {
       return next(error);
     }
 
-    await prisma.orderDetail.deleteMany({
-      where: {
-        orderId: value.orderId,
+    const editStatus = await prisma.order.update({
+      data: {
+        productStatus: value.productStatus,
       },
-    });
-
-    await prisma.order.delete({
       where: {
         id: value.orderId,
       },
     });
 
-    const newOrder = await prisma.order.create({
-      data: {
-        userId: req.user.id,
-
-        totalPrice: value.totalPrice,
-        orderDetail: {
-          create: [...value.orderDetail],
-        },
-      },
-      include: {
-        orderDetail: true,
-      },
-    });
-
-    res.status(201).json({ newOrder });
+    res.status(201).json({ editStatus });
   } catch (error) {
     next(error);
   }

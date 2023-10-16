@@ -1,13 +1,12 @@
 const express = require("express");
-const orderController = require("../controllers/order-controller");
+const paymentController = require("../controllers/payment-controller");
 const authenticateMiddleware = require("../middleware/authenticate");
 const router = express.Router();
 
-router.post("/create", authenticateMiddleware, orderController.createOrder);
 router.patch(
   "/update",
   authenticateMiddleware,
-  orderController.updateOrderStatus
+  paymentController.updatePaymentStatus
 );
 
 module.exports = router;

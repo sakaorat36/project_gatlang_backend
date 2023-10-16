@@ -8,10 +8,9 @@ const createOrderSchema = Joi.object({
   orderDetail: Joi.array(),
 });
 
-const updateOrderSchema = Joi.object({
+const updateOrderStatusSchema = Joi.object({
   orderId: Joi.number().integer().positive().required(),
-  totalPrice: Joi.number().integer().positive(),
-  orderDetail: Joi.array(),
+  productStatus: Joi.string().trim().valid("COOKING", "COMPLETE"),
 });
 
-module.exports = { createOrderSchema, updateOrderSchema };
+module.exports = { createOrderSchema, updateOrderStatusSchema };
