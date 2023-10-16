@@ -3,6 +3,7 @@ const prisma = require("../models/prisma");
 const {
   createOrderSchema,
   updateOrderStatusSchema,
+  getOrderByUserIdSchema,
 } = require("../validators/order-validator");
 
 exports.createOrder = async (req, res, next) => {
@@ -124,6 +125,77 @@ exports.updateOrderStatus = async (req, res, next) => {
 
     res.status(201).json({ editStatus });
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.getOrderByUserId = async (req, res) => {
+  try {
+    const { value, error } = getOrderByUserIdSchema.validate(req.params);
+
+    if (error) {
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const order = await prisma.order.findMany({
+      where: {
+        userId: value.userId,
+      },
+      select: {
+        id: true,
+        totalPrice: true,
+        slipURL: true,
+        productStatus: true,
+        paymentStatus: true,
+        orderDetail: {
+          select: {
+            product: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      const error = new Error("order not found");
+      error.statusCode = 400;
+
+      return next(error);
+    }
+
+    res.status(201).json({ order });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await prisma.order.findMany({
+      select: {
+        id: true,
+        totalPrice: true,
+        slipURL: true,
+        productStatus: true,
+        paymentStatus: true,
+        orderDetail: {
+          select: {
+            product: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    res.status(201).json({ orders });
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };

@@ -13,4 +13,12 @@ const updateOrderStatusSchema = Joi.object({
   productStatus: Joi.string().trim().valid("COOKING", "COMPLETE"),
 });
 
-module.exports = { createOrderSchema, updateOrderStatusSchema };
+const getOrderByUserIdSchema = Joi.object({
+  userId: Joi.number().integer().positive().required(),
+});
+
+module.exports = {
+  createOrderSchema,
+  updateOrderStatusSchema,
+  getOrderByUserIdSchema,
+};
