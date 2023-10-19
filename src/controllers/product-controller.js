@@ -65,6 +65,7 @@ exports.updateProduct = async (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
   try {
     const { value, error } = deleteProductSchema.validate(req.params);
+    console.log(value);
 
     if (error) {
       error.statusCode = 400;
@@ -89,12 +90,30 @@ exports.getAllProducts = async (req, res, next) => {
       select: {
         id: true,
         name: true,
+        image: true,
         price: true,
         amount: true,
         productStatus: true,
       },
     });
     res.status(200).json({ products });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateStatusProductById = async (req, res, next) => {
+  try {
+    const status = await prisma.product.update({
+      data: {
+        productStatus: req.body.productStatus,
+      },
+      where: {
+        id: +req.params.productId,
+      },
+    });
+
+    res.status(200).json({ status });
   } catch (error) {
     next(error);
   }
