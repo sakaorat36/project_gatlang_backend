@@ -19,6 +19,8 @@ model User {
   email     String?  @unique
   mobile    String?  @unique
   role      Userrole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
   order     Order[]
 }
 
@@ -30,16 +32,17 @@ enum Userrole {
 model Order {
   id            Int           @id @default(autoincrement())
   totalPrice    Int
-  createdAt     DateTime      @default(now())
   slipURL       String?
-  productStatus ProductState  @default(COOKING)
-  paymentStatus PaymentState  @default(PROCESSING)
-  user          User          @relation(fields: [userId], references: [id])
   userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  orderStatus   OrderState    @default(COOKING)
+  paymentStatus PaymentState  @default(PROCESSING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
   orderDetail   OrderDetail[]
 }
 
-enum ProductState {
+enum OrderState {
   COOKING
   COMPLETE
 }
@@ -55,15 +58,23 @@ model OrderDetail {
   price     Int
   order     Order   @relation(fields: [orderId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
-  orderId   Int
   productId Int
+  orderId   Int
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  name        String
-  image       String
-  amount      Int
-  price       Int
-  orderDetail OrderDetail[]
+  id            Int           @id @default(autoincrement())
+  name          String
+  image         String
+  amount        Int
+  price         Int
+  productStatus ProductState  @default(AVAILABLE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+  orderDetail   OrderDetail[]
+}
+
+enum ProductState {
+  AVAILABLE
+  NOTAVAILABLE
 }

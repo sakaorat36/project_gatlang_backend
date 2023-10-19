@@ -22,7 +22,7 @@ exports.createOrder = async (req, res, next) => {
         totalPrice: value.totalPrice,
         createdAt: value.createdAt,
         slipURL: value.slipURL,
-        productStatus: value.productStatus,
+        orderStatus: value.orderStatus,
         paymentStatus: value.paymentStatus,
         orderDetail: {
           create: [...value.orderDetail],
@@ -116,7 +116,7 @@ exports.updateOrderStatus = async (req, res, next) => {
 
     const editStatus = await prisma.order.update({
       data: {
-        productStatus: value.productStatus,
+        orderStatus: value.orderStatus,
       },
       where: {
         id: value.orderId,
@@ -146,7 +146,7 @@ exports.getOrderByUserId = async (req, res) => {
         id: true,
         totalPrice: true,
         slipURL: true,
-        productStatus: true,
+        orderStatus: true,
         paymentStatus: true,
         orderDetail: {
           select: {
@@ -180,7 +180,7 @@ exports.getAllOrders = async (req, res, next) => {
         id: true,
         totalPrice: true,
         slipURL: true,
-        productStatus: true,
+        orderStatus: true,
         paymentStatus: true,
         orderDetail: {
           select: {

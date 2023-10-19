@@ -8,8 +8,10 @@ const registerSchema = Joi.object({
     .required(),
   firstName: Joi.string().trim().required(),
   lastName: Joi.string().trim().required(),
-  email: Joi.string().email().required(),
-  moblie: Joi.string().pattern(/^[0-9]{10}$/),
+  email: Joi.string().email().allow(null, ""),
+  mobile: Joi.string()
+    .allow(null, "")
+    .pattern(/^[0-9]{10}$/),
   role: Joi.string().trim().valid("ADMIN", "USER"),
 });
 

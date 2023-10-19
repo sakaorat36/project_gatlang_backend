@@ -13,6 +13,8 @@ exports.register = async (req, res, next) => {
     }
 
     value.password = await bcrypt.hash(value.password, 12);
+    value.email = value.email ? value.email : undefined;
+    value.mobile = value.mobile ? value.mobile : undefined;
 
     const user = await prisma.user.create({
       data: value,
@@ -64,4 +66,8 @@ exports.login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+exports.getMe = async (req, res) => {
+  res.status(200).json({ user: req.user });
 };

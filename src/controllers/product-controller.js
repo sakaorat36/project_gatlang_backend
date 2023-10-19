@@ -3,12 +3,22 @@ const {
   updateProductSchema,
   deleteProductSchema,
 } = require("../validators/product-validator");
+const { upload } = require("../utils/cloundinary-service");
 
 const prisma = require("../models/prisma");
 
 exports.createProduct = async (req, res, next) => {
   try {
+    if (req.user.role !== "ADMIN") {
+      return res.status(401).json({ message: "unauthenticated" });
+    }
+    if (req.file) {
+      req.body.image = await upload(req.file.path);
+    }
     const { value, error } = createProductSchema.validate(req.body);
+    console.log(req.file);
+
+    console.log(value);
 
     if (error) {
       error.statusCode = 400;
@@ -22,6 +32,8 @@ exports.createProduct = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+  console.log(req.user);
 };
 
 exports.updateProduct = async (req, res, next) => {
@@ -75,8 +87,11 @@ exports.getAllProducts = async (req, res, next) => {
   try {
     const products = await prisma.product.findMany({
       select: {
+        id: true,
         name: true,
         price: true,
+        amount: true,
+        productStatus: true,
       },
     });
     res.status(200).json({ products });
