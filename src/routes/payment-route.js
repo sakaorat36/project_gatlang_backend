@@ -4,9 +4,9 @@ const authenticateMiddleware = require("../middleware/authenticate");
 const router = express.Router();
 
 router.patch(
-  "/update",
+  "/update/payment-status/:orderId",
   authenticateMiddleware,
-  paymentController.updatePaymentStatus
+  paymentController.updatePaymentStatusById
 );
 
 module.exports = router;

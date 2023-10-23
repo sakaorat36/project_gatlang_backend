@@ -4,7 +4,7 @@ const {
   updatePaymentStatusSchema,
 } = require("../validators/payment-validator");
 
-exports.updatePaymentStatus = async (req, res, next) => {
+exports.updatePaymentStatusById = async (req, res, next) => {
   try {
     const { value, error } = updatePaymentStatusSchema.validate(req.body);
 
@@ -31,7 +31,7 @@ exports.updatePaymentStatus = async (req, res, next) => {
         paymentStatus: value.paymentStatus,
       },
       where: {
-        id: value.orderId,
+        id: +req.params.orderId,
       },
     });
 

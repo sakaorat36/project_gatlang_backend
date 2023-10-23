@@ -5,15 +5,22 @@ const {
   updateOrderStatusSchema,
   getOrderByUserIdSchema,
 } = require("../validators/order-validator");
+const { upload } = require("../utils/cloundinary-service");
 
 exports.createOrder = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.slipURL = await upload(req.file.path);
+    }
+
     const { value, error } = createOrderSchema.validate(req.body);
 
     if (error) {
       error.statusCode = 400;
       return next(error);
     }
+
+    value.orderDetail = JSON.parse(value.orderDetail);
 
     /* Called when press Btn-Submit */
     const createOrderProduct = await prisma.order.create({
@@ -92,7 +99,7 @@ exports.createOrder = async (req, res, next) => {
 //   }
 // };
 
-exports.updateOrderStatus = async (req, res, next) => {
+exports.updateOrderStatusById = async (req, res, next) => {
   try {
     const { value, error } = updateOrderStatusSchema.validate(req.body);
 
@@ -119,7 +126,7 @@ exports.updateOrderStatus = async (req, res, next) => {
         orderStatus: value.orderStatus,
       },
       where: {
-        id: value.orderId,
+        id: +req.params.orderId,
       },
     });
 
@@ -129,7 +136,7 @@ exports.updateOrderStatus = async (req, res, next) => {
   }
 };
 
-exports.getOrderByUserId = async (req, res) => {
+exports.getOrderByUserId = async (req, res, next) => {
   try {
     const { value, error } = getOrderByUserIdSchema.validate(req.params);
 
@@ -138,7 +145,7 @@ exports.getOrderByUserId = async (req, res) => {
       return next(error);
     }
 
-    const order = await prisma.order.findMany({
+    const response = await prisma.order.findMany({
       where: {
         userId: value.userId,
       },
@@ -155,16 +162,40 @@ exports.getOrderByUserId = async (req, res) => {
                 name: true,
               },
             },
+            amount: true,
           },
         },
       },
     });
 
-    if (!order) {
+    // console.log("response", response);
+
+    if (!response) {
       const error = new Error("order not found");
       error.statusCode = 400;
 
       return next(error);
+    }
+
+    const order = [];
+
+    if (response?.length > 0) {
+      response.map((el) => {
+        // console.log("element", el);
+        el.orderDetail.forEach((item, index) => {
+          const result = {
+            id: index === 0 ? el.id : "",
+            totalPrice: el.totalPrice,
+            slipURL: index === 0 ? el.slipURL : "",
+            orderStatus: index === 0 ? el.orderStatus : "",
+            paymentStatus: index === 0 ? el.paymentStatus : "",
+            name: item.product.name,
+            amount: item.amount,
+          };
+          // console.log(result);
+          order.push(result);
+        });
+      });
     }
 
     res.status(201).json({ order });
@@ -175,7 +206,7 @@ exports.getOrderByUserId = async (req, res) => {
 
 exports.getAllOrders = async (req, res, next) => {
   try {
-    const orders = await prisma.order.findMany({
+    const response = await prisma.order.findMany({
       select: {
         id: true,
         totalPrice: true,
@@ -189,10 +220,39 @@ exports.getAllOrders = async (req, res, next) => {
                 name: true,
               },
             },
+            amount: true,
           },
         },
       },
     });
+
+    if (!response) {
+      const error = new Error("order not found");
+      error.statusCode = 400;
+
+      return next(error);
+    }
+
+    const orders = [];
+
+    if (response?.length > 0) {
+      response.map((el) => {
+        if (el.orderDetail?.length > 0) {
+          el.orderDetail.forEach((item, index) => {
+            orders.push({
+              id: index === 0 ? el.id : "",
+              totalPrice: index === 0 ? el.totalPrice : "",
+              slipURL: index === 0 ? el.slipURL : "",
+              orderStatus: index === 0 ? el.orderStatus : "",
+              paymentStatus: index === 0 ? el.paymentStatus : "",
+              name: item.product.name,
+              amount: item.amount,
+            });
+          });
+        }
+      });
+    }
+
     res.status(201).json({ orders });
   } catch (error) {
     console.log(error);

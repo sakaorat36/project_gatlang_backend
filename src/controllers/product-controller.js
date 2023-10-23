@@ -12,13 +12,12 @@ exports.createProduct = async (req, res, next) => {
     if (req.user.role !== "ADMIN") {
       return res.status(401).json({ message: "unauthenticated" });
     }
+
     if (req.file) {
       req.body.image = await upload(req.file.path);
     }
-    const { value, error } = createProductSchema.validate(req.body);
-    console.log(req.file);
 
-    console.log(value);
+    const { value, error } = createProductSchema.validate(req.body);
 
     if (error) {
       error.statusCode = 400;
@@ -86,7 +85,7 @@ exports.deleteProduct = async (req, res, next) => {
 
 exports.getAllProducts = async (req, res, next) => {
   try {
-    const products = await prisma.product.findMany({
+    const response = await prisma.product.findMany({
       select: {
         id: true,
         name: true,
@@ -96,6 +95,15 @@ exports.getAllProducts = async (req, res, next) => {
         productStatus: true,
       },
     });
+
+    let products = [...response];
+    products.map((product) => {
+      if (product.productStatus === "NOTAVAILABLE") {
+        product.productStatus = "NOT AVAILABLE";
+      }
+      return product;
+    });
+
     res.status(200).json({ products });
   } catch (error) {
     next(error);
